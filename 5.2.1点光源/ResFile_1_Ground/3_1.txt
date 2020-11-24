@@ -1,0 +1,29 @@
+ //第一个变量
+uniform float g_iCount = 88888; 
+//第二个变量
+shared float4 g_Out;			
+//第三个变量
+float3 lightDir<string UIDirectional = "Light Direction";> = {0.577,-0.577,0.66};
+string XFile = "这是FX文件内的字符";
+
+technique DefaultTech
+{
+    pass P0
+    {
+        CullMode = CCW;
+        FillMode = WireFrame;
+    }
+}
+
+technique TestTech
+{
+    pass P0
+    {
+    }
+    pass P1
+    {
+    }
+    pass P2
+    {
+    }
+}
