@@ -1,0 +1,71 @@
+
+//定义缩放因子
+//x轴上的缩放因子
+float fXScale = 0.2;
+//y轴上的缩放因子
+float fYScale = 0.2;
+texture texColorTexture;
+struct VS_INPUT
+{
+    float4 pos: POSITION; 			//位置
+    float4 color: COLOR0;			//颜色
+    float2 tex: TEXCOORD0;			//纹理坐标
+};
+struct VS_OUTPUT
+{
+    float4 pos: POSITION;			//位置
+    float4 color : COLOR0;			//颜色
+    float2 tex: TEXCOORD0;			//纹理坐标
+};
+
+sampler ColorMapSampler = sampler_state
+{
+    Texture = (texColorTexture);
+    MipFilter = LINEAR;
+    MagFilter = LINEAR;
+    ADDRESSU = MIRROR;
+    ADDRESSV = MIRROR;
+};
+//顶点着色器入口代码
+VS_OUTPUT MainVS_Screen(VS_INPUT IN)
+{
+//先初始化为0
+    VS_OUTPUT Out = (VS_OUTPUT) 0;
+    //XY轴位置方向按一定的方式缩放
+    IN.pos.x = sign(IN.pos.x) * fXScale * 2 - ( 1-fXScale*2);
+    IN.pos.y = sign(IN.pos.y) * fYScale * 2 + ( 1-fXScale*2);
+    //z轴坐标在0.9处
+    Out.pos = float4(IN.pos.x,IN.pos.y,0.9,1);
+    Out.tex = IN.tex;
+    Out.color = IN.color;
+    return Out;
+}
+
+//像素着色器入口代码
+float4 MainPS_Screen(VS_OUTPUT In) : COLOR
+{
+    float4 vColor = float4(In.color.x, In.color.y,In.color.z,1);
+    return tex2D(ColorMapSampler, In.tex) * vColor;
+}
+
+//使用线框渲染
+float4 MainPS_Screen_Line(VS_OUTPUT In) : COLOR
+{ 
+    return float4(1.0,1.0,0.0,0.0);
+}
+technique Default
+{
+//正常渲染
+    pass P0
+     {
+	VertexShader = compile vs_2_0 MainVS_Screen();
+	PixelShader = compile ps_2_0 MainPS_Screen();
+    }
+//线框渲染
+    pass P1
+     {
+	FillMode = WireFrame;
+	VertexShader = compile vs_2_0 MainVS_Screen();
+	PixelShader = compile ps_2_0 MainPS_Screen_Line();
+    }
+}
